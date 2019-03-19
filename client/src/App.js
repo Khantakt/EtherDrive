@@ -8,7 +8,7 @@ import {UserBox} from "./UserBox";
 class App extends Component {
   constructor(props){
     super(props);
-    this.state = { storageValue: 0, web3: null, account: null, contract: null, etherDrive: null };
+    this.state = { storageValue: 0, web3: null, account: null, contract: null, etherDrive: null, round:0, active: false, userId: null};
   }
 
   componentDidMount = async () => {
@@ -17,9 +17,11 @@ class App extends Component {
       const web3 = await getWeb3();
 
       // Use web3 to get the user's accounts.
-      const account = await web3.eth.getAccounts();
+      let account = await web3.eth.getAccounts();
+      let accountParam = account.toString();
 
       // Get the contract instance.
+
       const networkId = await web3.eth.net.getId();
       const deployedNetwork = EtherDriveContract.networks[networkId];
       const contractAddress = deployedNetwork.address;
@@ -27,9 +29,13 @@ class App extends Component {
         EtherDriveContract.abi,
         contractAddress
       );
+
+      // etherDrive.methods._createPlayer().call();
+      console.log(etherDrive.methods.getPlayerId(accountParam).call());
+
       // Set web3, accounts, and contract to the state, and then proceed with an
       this.setState({ web3: web3, account: account, contract: contractAddress, etherDrive: etherDrive});
-      console.log(contractAddress);
+
     } catch (error) {
       // Catch any errors for any of the above operations.
       alert(
@@ -45,6 +51,7 @@ class App extends Component {
         <div class = "container">
         <GameCanvas />
         <UserBox address = {this.state.account} />
+        <p>{this.state.contract}</p>
         </div>
       </div>
     );

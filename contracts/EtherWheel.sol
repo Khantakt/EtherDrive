@@ -6,8 +6,9 @@ contract  EtherWheel is EtherDrive {
 
 using SafeMath for uint256;
 
-event RoundResults(uint userId, uint roundNumber, uint spinOne, uint spinTwo, uint spinThree, uint roundScore, uint totalWinnings);
+event RoundResults(uint userId, uint roundNumber, uint spinOne, uint spinTwo, uint spinThree, uint roundScore);
 event SpinLanding(uint spinresult);
+event PlayerRewardPool(uint userId, uint rewardPool);
 
   uint randNonce = 0;
   uint roundOneGoal = 250;
@@ -38,7 +39,6 @@ event SpinLanding(uint spinresult);
     Player storage currentPlayer = players[_userId];
     idToCreditBalance[_userId] = 0;
     currentPlayer.roundCount = currentPlayer.roundCount.add(1);
-    uint totalWinnigs = idToCreditBalance[_userId];
     uint roundNumber = currentPlayer.roundCount;
     uint roundReward = _roundReward;
     uint spinOnePoints = getRoundScore(randMod(100));
@@ -46,13 +46,11 @@ event SpinLanding(uint spinresult);
     uint spinThreePoints = getRoundScore(randMod(100));
     uint _roundScore = spinOnePoints + spinTwoPoints + spinThreePoints;
 
-    emit RoundResults(_userId, roundNumber, spinOnePoints, spinTwoPoints, spinThreePoints, _roundScore, totalWinnigs);
+    emit RoundResults(_userId, roundNumber, spinOnePoints, spinTwoPoints, spinThreePoints, _roundScore);
     if(_roundScore >= _scoreToWin){
-        uint amount = roundReward;
         if(roundNumber == 3){
             currentPlayer.roundCount = 0;
             currentPlayer.paid = false;
-            msg.sender.transfer(amount);
 
         } else {
             idToCreditBalance[_userId] = roundReward;
@@ -61,7 +59,8 @@ event SpinLanding(uint spinresult);
         currentPlayer.roundCount = 0;
         currentPlayer.paid = false;
     }
-
+    uint rewardPool = idToCreditBalance[_userId];
+    emit PlayerRewardPool(_userId, rewardPool);
     }
 
 
@@ -127,6 +126,8 @@ event SpinLanding(uint spinresult);
     function setPriceToPlay(uint _price) external onlyOwner {
      priceToPlay = _price;
   }
+
+
   }
 
 

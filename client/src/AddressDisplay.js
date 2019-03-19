@@ -6,7 +6,7 @@ export class AddressDisplay extends React.Component {
 
 render() {
   return (
-    <div id ="address-display">{this.props.address}</div>
+    <div id ="address-display">Account: {this.props.address}</div>
 )
 }
 

@@ -22,7 +22,7 @@ contract EtherDrive is Ownable{
 
    mapping(address => uint) balanceOf;
    mapping(uint => uint) idToCreditBalance;
-   mapping(address => uint8) activated;
+   mapping(address => bool) activated;
    mapping(uint => address) idToPlayer;
    mapping(address => uint) addressToId;
 
@@ -33,10 +33,10 @@ contract EtherDrive is Ownable{
   }
 
    function _createPlayer() public {
+    require(activated[msg.sender] == false);
     address account = msg.sender;
-    require(activated[msg.sender] == 0);
     uint userId = players.push(Player(account,  0, 0, false)) - 1 ;
-    activated[msg.sender] = 1;
+    activated[msg.sender] = true;
     idToPlayer[userId] = msg.sender;
     idToCreditBalance[userId] = 0;
     addressToId[msg.sender] = userId;
@@ -65,5 +65,17 @@ contract EtherDrive is Ownable{
         return idToCreditBalance[_userId];
     }
 
+    function getRoundCount(uint _userId) public view returns (uint) {
+        return players[_userId].roundCount;
+    }
+
+    function isAccountActivated() public view returns (bool){
+        return (activated[msg.sender]);
+    }
+
+    function getPlayerId(address _userAccount) public view returns (uint) {
+        require(_userAccount == msg.sender);
+        return addressToId[_userAccount];
+    }
 
 }

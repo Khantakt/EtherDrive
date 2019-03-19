@@ -2,6 +2,7 @@ import React, { Component } from "react";
 import {GameCanvas} from "./GameCanvas";
 import EtherDriveContract from "./contracts/EtherWheel.json";
 import getWeb3 from "./utils/getWeb3";
+import {UserBox} from "./UserBox";
 // import "./App.css";
 
 class App extends Component {
@@ -41,9 +42,10 @@ class App extends Component {
   render() {
     return (
       <div className="App">
+        <div class = "container">
         <GameCanvas />
-        <h1>{this.state.accounts}</h1>
-        <h2>{this.state.contract}</h2>
+        <UserBox address = {this.state.account} />
+        </div>
       </div>
     );
   }

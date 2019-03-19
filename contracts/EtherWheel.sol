@@ -6,12 +6,12 @@ contract  EtherWheel is EtherDrive {
 
 using SafeMath for uint256;
 
-event RoundResults(uint userId, uint roundNumber, uint spinOne, uint spinTwo, uint spinThree, uint roundScore);
+event RoundResults(uint userId, uint roundNumber, uint spinOne, uint spinTwo, uint spinThree, uint roundScore, uint totalWinnings);
 event SpinLanding(uint spinresult);
 
   uint randNonce = 0;
   uint roundOneGoal = 250;
-  uint roundTwoGoal = 450;
+  uint roundTwoGoal = 400;
   uint roundThreeGoal = 500;
 
   uint roundOneReward = 10;
@@ -38,6 +38,7 @@ event SpinLanding(uint spinresult);
     Player storage currentPlayer = players[_userId];
     idToCreditBalance[_userId] = 0;
     currentPlayer.roundCount = currentPlayer.roundCount.add(1);
+    uint totalWinnigs = idToCreditBalance[_userId];
     uint roundNumber = currentPlayer.roundCount;
     uint roundReward = _roundReward;
     uint spinOnePoints = getRoundScore(randMod(100));
@@ -45,7 +46,7 @@ event SpinLanding(uint spinresult);
     uint spinThreePoints = getRoundScore(randMod(100));
     uint _roundScore = spinOnePoints + spinTwoPoints + spinThreePoints;
 
-    emit RoundResults(_userId, roundNumber, spinOnePoints, spinTwoPoints, spinThreePoints, _roundScore);
+    emit RoundResults(_userId, roundNumber, spinOnePoints, spinTwoPoints, spinThreePoints, _roundScore, totalWinnigs);
     if(_roundScore >= _scoreToWin){
         uint amount = roundReward;
         if(roundNumber == 3){
@@ -66,7 +67,6 @@ event SpinLanding(uint spinresult);
 
     function checkRound(uint _userId) public onlyPlayer(_userId){
       Player storage currentPlayer = players[_userId];
-      require(currentPlayer.paid == true);
       if(currentPlayer.roundCount ==  0) {
         spinWheel(_userId, roundOneGoal, roundOneReward);
       } else if(currentPlayer.roundCount ==  1) {
@@ -97,8 +97,36 @@ event SpinLanding(uint spinresult);
       }
     }
 
+// Functions for owner to set round goal amounts
+    function setRoundOneGoal(uint _goal) external onlyOwner {
+    roundOneGoal = _goal;
+  }
 
+  function setRoundTwoGoal(uint _goal) external onlyOwner {
+    roundTwoGoal = _goal;
+  }
 
+  function setRoundThreeGoal(uint _goal) external onlyOwner {
+    roundThreeGoal = _goal;
+  }
+
+// Functions for owner to change round reward amounts
+  function setRoundOneReward(uint _reward) external onlyOwner {
+    roundOneReward = _reward;
+  }
+
+   function setRoundTwoReward(uint _reward) external onlyOwner {
+    roundTwoReward = _reward;
+  }
+
+   function setRoundThreeReward(uint _reward) external onlyOwner {
+    roundThreeReward = _reward;
+  }
+
+//   Function for owner to change the price to play
+    function setPriceToPlay(uint _price) external onlyOwner {
+     priceToPlay = _price;
+  }
   }
 
 

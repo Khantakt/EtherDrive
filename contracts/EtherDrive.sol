@@ -46,8 +46,24 @@ contract EtherDrive is Ownable{
     function deposit(uint256 _amount) payable public {
         require(msg.value == _amount);
     }
+// /* Only owner of contract can withdraw */
+//     function withdraw() external onlyOwner {
+//     address _owner = owner();
+//     _owner.transfer(address(this).balance);
+//   }
+
+/* Need to customize this to changing priceToPlay, roundGoals and roundRewards */
+  /* function setLevelUpFee(uint _fee) external onlyOwner {
+      levelUpFee = _fee;
+    } */
 
     function payToPlay () public payable {
-         require (msg.value == priceToPlay);
+        require (msg.value == priceToPlay);
          }
+
+    function getCreditedAmount(uint _userId) public view returns (uint){
+        return idToCreditBalance[_userId];
+    }
+
+
 }

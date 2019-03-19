@@ -5,6 +5,7 @@
     <link rel="shortcut icon" href="%PUBLIC_URL%/favicon.ico">
     <script language="javascript" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
     <script language="javascript" type="text/javascript" src="web3.min.js"></script>
+    <script src="node_modules/web3/dist/web3.min.js"></script>
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
     <meta name="theme-color" content="#000000">
     <!--
@@ -24,11 +25,12 @@
     <title>React App</title>
   </head>
   <body>
-    Hello
     <noscript>
       You need to enable JavaScript to run this app.
     </noscript>
     <div id="root"></div>
+    <div id="userInfo"></div>
+    <button id=”button”>create player</button>
     <!--
       This HTML file is a template.
       If you open it directly in the browser, you will see an empty page.
@@ -39,9 +41,256 @@
       To begin the development, run `npm start` or `yarn start`.
       To create a production bundle, use `npm run build` or `yarn build`.
     -->
-    <script>
+  <script>
+window.addEventListener('load', function() {
+  if (typeof web3 !== 'undefined') {
+        console.log('Web3 Detected! ' + web3.currentProvider.constructor.name)
+        window.web3 = new Web3(web3.currentProvider);
+    } else {
+        console.log('No Web3 Detected... using HTTP Provider')
+        window.web3 = new Web3(new Web3.providers.HttpProvider("http://localhost:7545"));
+    }
 
 
-    </script>
+var etherDriveContract = web3.eth.contract([
+  {
+    "constant": false,
+    "inputs": [],
+    "name": "payToPlay",
+    "outputs": [],
+    "payable": true,
+    "stateMutability": "payable",
+    "type": "function",
+    "signature": "0x3e5edbd3"
+  },
+  {
+    "constant": false,
+    "inputs": [],
+    "name": "renounceOwnership",
+    "outputs": [],
+    "payable": false,
+    "stateMutability": "nonpayable",
+    "type": "function",
+    "signature": "0x715018a6"
+  },
+  {
+    "constant": true,
+    "inputs": [],
+    "name": "owner",
+    "outputs": [
+      {
+        "name": "",
+        "type": "address"
+      }
+    ],
+    "payable": false,
+    "stateMutability": "view",
+    "type": "function",
+    "signature": "0x8da5cb5b"
+  },
+  {
+    "constant": true,
+    "inputs": [],
+    "name": "isOwner",
+    "outputs": [
+      {
+        "name": "",
+        "type": "bool"
+      }
+    ],
+    "payable": false,
+    "stateMutability": "view",
+    "type": "function",
+    "signature": "0x8f32d59b"
+  },
+  {
+    "constant": false,
+    "inputs": [
+      {
+        "name": "_amount",
+        "type": "uint256"
+      }
+    ],
+    "name": "deposit",
+    "outputs": [],
+    "payable": true,
+    "stateMutability": "payable",
+    "type": "function",
+    "signature": "0xb6b55f25"
+  },
+  {
+    "constant": false,
+    "inputs": [],
+    "name": "_createPlayer",
+    "outputs": [],
+    "payable": false,
+    "stateMutability": "nonpayable",
+    "type": "function",
+    "signature": "0xf02b1e8b"
+  },
+  {
+    "constant": false,
+    "inputs": [
+      {
+        "name": "newOwner",
+        "type": "address"
+      }
+    ],
+    "name": "transferOwnership",
+    "outputs": [],
+    "payable": false,
+    "stateMutability": "nonpayable",
+    "type": "function",
+    "signature": "0xf2fde38b"
+  },
+  {
+    "constant": true,
+    "inputs": [
+      {
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "name": "players",
+    "outputs": [
+      {
+        "name": "account",
+        "type": "address"
+      },
+      {
+        "name": "roundCount",
+        "type": "uint256"
+      },
+      {
+        "name": "roundScore",
+        "type": "uint256"
+      },
+      {
+        "name": "paid",
+        "type": "bool"
+      }
+    ],
+    "payable": false,
+    "stateMutability": "view",
+    "type": "function",
+    "signature": "0xf71d96cb"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": false,
+        "name": "userId",
+        "type": "uint256"
+      },
+      {
+        "indexed": false,
+        "name": "roundNumber",
+        "type": "uint256"
+      },
+      {
+        "indexed": false,
+        "name": "spinOne",
+        "type": "uint256"
+      },
+      {
+        "indexed": false,
+        "name": "spinTwo",
+        "type": "uint256"
+      },
+      {
+        "indexed": false,
+        "name": "spinThree",
+        "type": "uint256"
+      },
+      {
+        "indexed": false,
+        "name": "roundScore",
+        "type": "uint256"
+      }
+    ],
+    "name": "RoundResults",
+    "type": "event",
+    "signature": "0xe0b567f256a5601a57602f8a6dab7faba423582f0959e5f429bcdf3b09909483"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": false,
+        "name": "spinresult",
+        "type": "uint256"
+      }
+    ],
+    "name": "SpinLanding",
+    "type": "event",
+    "signature": "0x6f412c727e1597d6c3ae2306971f44bdbf2360b1e377440659b855b6ad834968"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": false,
+        "name": "userId",
+        "type": "uint256"
+      }
+    ],
+    "name": "NewPlayer",
+    "type": "event",
+    "signature": "0xf4dd1db653a1088522e9ca377c4d54a81fc4c56ca3183a81caf1303eda7e1a95"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "name": "previousOwner",
+        "type": "address"
+      },
+      {
+        "indexed": true,
+        "name": "newOwner",
+        "type": "address"
+      }
+    ],
+    "name": "OwnershipTransferred",
+    "type": "event",
+    "signature": "0x8be0079c531659141344cd1fd0a4f28419497f9722a3daafe3b4186f6b6457e0"
+  },
+  {
+    "constant": false,
+    "inputs": [
+      {
+        "name": "_userId",
+        "type": "uint256"
+      }
+    ],
+    "name": "checkRound",
+    "outputs": [],
+    "payable": false,
+    "stateMutability": "nonpayable",
+    "type": "function",
+    "signature": "0xf4b19eff"
+  }
+]);
+
+var etherDrive = etherDriveContract.at('0xDF91Da9f7bc18941A31A99258B3E91835f260FFD');
+
+var newPlayerEvent = etherDrive.NewPlayer();
+newPlayerEvent.watch(function(error, result){
+            if (!error)
+                {
+                    $("#userInfo").html(result.args.userId);
+                } else {
+                    console.log(error);
+                }
+        });
+
+$(“#button”).click(etherDrive._createPlayer();
+});
+
+
+}
+  </script>
   </body>
 </html>

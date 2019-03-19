@@ -4,9 +4,11 @@ import EtherDriveContract from "./contracts/EtherWheel.json";
 import getWeb3 from "./utils/getWeb3";
 // import "./App.css";
 
-
 class App extends Component {
-  state = { storageValue: 0, web3: null, accounts: null, contract: null };
+  constructor(props){
+    super(props);
+    this.state = { storageValue: 0, web3: null, account: null, contract: null, etherDrive: null };
+  }
 
   componentDidMount = async () => {
     try {
@@ -14,16 +16,19 @@ class App extends Component {
       const web3 = await getWeb3();
 
       // Use web3 to get the user's accounts.
-      const accounts = await web3.eth.getAccounts();
+      const account = await web3.eth.getAccounts();
 
       // Get the contract instance.
       const networkId = await web3.eth.net.getId();
       const deployedNetwork = EtherDriveContract.networks[networkId];
-      const instance = new web3.eth.Contract(
+      const contractAddress = deployedNetwork.address;
+      const etherDrive = new web3.eth.Contract(
         EtherDriveContract.abi,
-        deployedNetwork && deployedNetwork.address,
+        contractAddress
       );
       // Set web3, accounts, and contract to the state, and then proceed with an
+      this.setState({ web3: web3, account: account, contract: contractAddress, etherDrive: etherDrive});
+      console.log(contractAddress);
     } catch (error) {
       // Catch any errors for any of the above operations.
       alert(
@@ -37,8 +42,8 @@ class App extends Component {
     return (
       <div className="App">
         <GameCanvas />
-        <h1>Good to Go!</h1>
-        <h2>Smart Contract Example</h2>
+        <h1>{this.state.accounts}</h1>
+        <h2>{this.state.contract}</h2>
       </div>
     );
   }

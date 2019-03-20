@@ -7,7 +7,7 @@ export class GameCanvas extends React.Component {
 
 render() {
   return (
-  <canvas class = "col-lg-8"></canvas>
+  <canvas className = "col-lg-8"></canvas>
 )
 }
 

@@ -64,9 +64,14 @@ event PlayerRewardPool(uint userId, uint rewardPool);
     }
 
 
-    function checkRound(uint _userId) public onlyPlayer(_userId){
-      Player storage currentPlayer = players[_userId];
-      if(currentPlayer.roundCount ==  0) {
+    function checkRound(address _account) public {
+        require(msg.sender == _account);
+        uint _userId = addressToId[msg.sender];
+        if(_userId == 0){
+            createPlayer();
+        }
+         Player storage currentPlayer = players[_userId];
+        if(currentPlayer.roundCount ==  0) {
         spinWheel(_userId, roundOneGoal, roundOneReward);
       } else if(currentPlayer.roundCount ==  1) {
         spinWheel(_userId, roundTwoGoal, roundTwoReward);

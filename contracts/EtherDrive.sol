@@ -32,10 +32,8 @@ contract EtherDrive is Ownable{
     _;
   }
 
-   function _createPlayer() public {
-    require(activated[msg.sender] == false);
-    address account = msg.sender;
-    uint userId = players.push(Player(account,  0, 0, false)) - 1 ;
+   function createPlayer() public {
+    uint userId = players.push(Player(msg.sender,  0, 0, false)) - 1 ;
     activated[msg.sender] = true;
     idToPlayer[userId] = msg.sender;
     idToCreditBalance[userId] = 0;
@@ -73,9 +71,8 @@ contract EtherDrive is Ownable{
         return (activated[msg.sender]);
     }
 
-    function getPlayerId(address _userAccount) public view returns (uint) {
-        require(_userAccount == msg.sender);
-        return addressToId[_userAccount];
+    function getPlayerId() public view returns (uint) {
+        return addressToId[msg.sender];
     }
 
 }

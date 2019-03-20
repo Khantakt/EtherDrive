@@ -7,7 +7,7 @@ export class UserBox extends React.Component {
 
 render() {
   return (
-    < div id ="userbox-display" class="col-lg-4">
+    < div id ="userbox-display" className="col-lg-4">
     <AddressDisplay address = {this.props.address}/>
     </div>
 )

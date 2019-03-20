@@ -9,6 +9,7 @@ class App extends Component {
   constructor(props){
     super(props);
     this.state = { storageValue: 0, web3: null, account: null, contract: null, etherDrive: null, round:0, active: false, userId: null};
+    this.checkPlayerActivation = this.checkPlayerActivation.bind(this);
   }
 
   componentDidMount = async () => {
@@ -18,7 +19,6 @@ class App extends Component {
 
       // Use web3 to get the user's accounts.
       let account = await web3.eth.getAccounts();
-      let accountParam = account.toString();
 
       // Get the contract instance.
 
@@ -30,8 +30,7 @@ class App extends Component {
         contractAddress
       );
 
-      // etherDrive.methods._createPlayer().call();
-      console.log(etherDrive.methods.getPlayerId(accountParam).call());
+
 
       // Set web3, accounts, and contract to the state, and then proceed with an
       this.setState({ web3: web3, account: account, contract: contractAddress, etherDrive: etherDrive});
@@ -43,7 +42,29 @@ class App extends Component {
       );
       console.error(error);
     }
+
+    // let accountParam = this.state.account.toString();
+    this.checkPlayerActivation();
+
+
+    // console.log(etherDrive.methods.getPlayerId(accountParam).call());
   };
+
+  getData(){
+  setTimeout(() => {
+    console.log('Our data is fetched');
+    this.setState({
+      data: 'Hello WallStreet'
+    })
+  }, 1000)};
+
+  checkPlayerActivation(account) {
+  let activated =  this.state.etherDrive.methods.isAccountActivated().call();
+    if(!activated) {
+      this.state.etherDrive.methods._createPlayer().call();
+    }
+  }
+
 
   render() {
     return (

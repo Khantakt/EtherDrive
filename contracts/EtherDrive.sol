@@ -21,7 +21,7 @@ contract EtherDrive is Ownable{
   Player[] public players;
 
    mapping(address => uint) balanceOf;
-   mapping(uint => uint) idToCreditBalance;
+   mapping(address => uint) addressToCreditBalance;
    mapping(address => bool) activated;
    mapping(uint => address) idToPlayer;
    mapping(address => uint) addressToId;
@@ -32,14 +32,21 @@ contract EtherDrive is Ownable{
     _;
   }
 
-   function createPlayer() public {
-    uint userId = players.push(Player(msg.sender,  0, 0, false)) - 1 ;
-    activated[msg.sender] = true;
-    idToPlayer[userId] = msg.sender;
-    idToCreditBalance[userId] = 0;
-    addressToId[msg.sender] = userId;
+  function createPlayer() public {
+    require(activated[msg.sender] != true);
+    address _userAccount = msg.sender;
+    uint userId = players.push(Player(_userAccount,  0, 0, false)) - 1 ;
+    activated[_userAccount] = true;
+    idToPlayer[userId] = _userAccount;
+    addressToCreditBalance[_userAccount] = 0;
+    addressToId[_userAccount] = userId;
     emit NewPlayer(userId);
   }
+
+//   function testCreatePlayer(address _userAccount) public {
+//     uint userId = players.push(Player(_userAccount,  0, 0, false)) ;
+//     emit NewPlayer(userId);
+//   }
 
     function deposit(uint256 _amount) payable public {
         require(msg.value == _amount);
@@ -55,12 +62,16 @@ contract EtherDrive is Ownable{
       levelUpFee = _fee;
     } */
 
+     function testConnection () public pure returns (uint){
+        return 100;
+         }
+
     function payToPlay () public payable {
         require (msg.value == priceToPlay);
          }
 
-    function getCreditedAmount(uint _userId) public view returns (uint){
-        return idToCreditBalance[_userId];
+    function getCreditedAmount() public view returns (uint){
+        return addressToCreditBalance[msg.sender];
     }
 
     function getRoundCount(uint _userId) public view returns (uint) {
@@ -73,6 +84,10 @@ contract EtherDrive is Ownable{
 
     function getPlayerId() public view returns (uint) {
         return addressToId[msg.sender];
+    }
+
+    function getPriceToPlay() public view returns (uint) {
+        return priceToPlay;
     }
 
 }

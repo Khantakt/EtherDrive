@@ -35,50 +35,46 @@ event PlayerRewardPool(uint userId, uint rewardPool);
   }
 
 
-  function spinWheel(uint _userId, uint _scoreToWin, uint _roundReward) internal {
-    Player storage currentPlayer = players[_userId];
-    idToCreditBalance[_userId] = 0;
-    currentPlayer.roundCount = currentPlayer.roundCount.add(1);
-    uint roundNumber = currentPlayer.roundCount;
-    uint roundReward = _roundReward;
-    uint spinOnePoints = getRoundScore(randMod(100));
-    uint spinTwoPoints = getRoundScore(randMod(100));
-    uint spinThreePoints = getRoundScore(randMod(100));
-    uint _roundScore = spinOnePoints + spinTwoPoints + spinThreePoints;
+//   function spinWheel(uint _userId, uint _scoreToWin, uint _roundReward) internal {
+//     Player storage currentPlayer = players[_userId];
+//     idToCreditBalance[_userId] = 0;
+//     currentPlayer.roundCount = currentPlayer.roundCount.add(1);
+//     uint roundNumber = currentPlayer.roundCount;
+//     uint roundReward = _roundReward;
+//     uint spinOnePoints = getRoundScore(randMod(100));
+//     uint spinTwoPoints = getRoundScore(randMod(100));
+//     uint spinThreePoints = getRoundScore(randMod(100));
+//     uint _roundScore = spinOnePoints + spinTwoPoints + spinThreePoints;
 
-    emit RoundResults(_userId, roundNumber, spinOnePoints, spinTwoPoints, spinThreePoints, _roundScore);
-    if(_roundScore >= _scoreToWin){
-        if(roundNumber == 3){
-            currentPlayer.roundCount = 0;
-            currentPlayer.paid = false;
+//     emit RoundResults(_userId, roundNumber, spinOnePoints, spinTwoPoints, spinThreePoints, _roundScore);
+//     if(_roundScore >= _scoreToWin){
+//         if(roundNumber == 3){
+//             currentPlayer.roundCount = 0;
+//             currentPlayer.paid = false;
 
-        } else {
-            idToCreditBalance[_userId] = roundReward;
-        }
-    } else {
-        currentPlayer.roundCount = 0;
-        currentPlayer.paid = false;
-    }
-    uint rewardPool = idToCreditBalance[_userId];
-    emit PlayerRewardPool(_userId, rewardPool);
-    }
+//         } else {
+//             idToCreditBalance[_userId] = roundReward;
+//         }
+//     } else {
+//         currentPlayer.roundCount = 0;
+//         currentPlayer.paid = false;
+//     }
+//     uint rewardPool = idToCreditBalance[_userId];
+//     emit PlayerRewardPool(_userId, rewardPool);
+//     }
 
 
-    function checkRound(address _account) public {
-        require(msg.sender == _account);
-        uint _userId = addressToId[msg.sender];
-        if(_userId == 0){
-            createPlayer();
-        }
-         Player storage currentPlayer = players[_userId];
-        if(currentPlayer.roundCount ==  0) {
-        spinWheel(_userId, roundOneGoal, roundOneReward);
-      } else if(currentPlayer.roundCount ==  1) {
-        spinWheel(_userId, roundTwoGoal, roundTwoReward);
-      } else if(currentPlayer.roundCount ==  2) {
-        spinWheel(_userId, roundThreeGoal, roundThreeReward);
-      }
-    }
+//     function checkRound() public {
+//         uint _userId = addressToId[msg.sender];
+//          Player storage currentPlayer = players[_userId];
+//         if(currentPlayer.roundCount ==  0) {
+//         spinWheel(_userId, roundOneGoal, roundOneReward);
+//       } else if(currentPlayer.roundCount ==  1) {
+//         spinWheel(_userId, roundTwoGoal, roundTwoReward);
+//       } else if(currentPlayer.roundCount ==  2) {
+//         spinWheel(_userId, roundThreeGoal, roundThreeReward);
+//       }
+//     }
 
     function getRoundScore(uint _spinNumber) private returns (uint){
         emit SpinLanding(_spinNumber);
@@ -119,11 +115,11 @@ event PlayerRewardPool(uint userId, uint rewardPool);
     roundOneReward = _reward;
   }
 
-   function setRoundTwoReward(uint _reward) external onlyOwner {
+  function setRoundTwoReward(uint _reward) external onlyOwner {
     roundTwoReward = _reward;
   }
 
-   function setRoundThreeReward(uint _reward) external onlyOwner {
+  function setRoundThreeReward(uint _reward) external onlyOwner {
     roundThreeReward = _reward;
   }
 

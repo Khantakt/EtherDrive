@@ -71,7 +71,7 @@ class App extends Component {
   // Send the tx to our contract:
   // return console.log(etherDrive.methods.setPriceToPlay(50).send({from: account[0]}));
   // return console.log(etherDrive.methods.getPriceToPlay().call());
-  return console.log(etherDrive.methods.createPlayer().send({from: account[0]}));
+  return console.log(etherDrive.methods.checkRound().send({from: account[0]}));
 
 }
 

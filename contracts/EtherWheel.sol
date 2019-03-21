@@ -6,7 +6,7 @@ contract  EtherWheel is EtherDrive {
 
 using SafeMath for uint256;
 
-event RoundResults(uint userId, uint roundNumber, uint spinOne, uint spinTwo, uint spinThree, uint roundScore);
+event SpinResults(uint userId, uint spinScore, uint spinCount, uint roundCount, uint roundScore, uint roundGoal);
 event SpinLanding(uint spinresult);
 event PlayerRewardPool(uint userId, uint rewardPool);
 
@@ -29,55 +29,76 @@ event PlayerRewardPool(uint userId, uint rewardPool);
   uint8 twoHundred = 200;
 
 
-  function randMod(uint _modulus) internal returns(uint) {
-    randNonce = randNonce.add(1);
-    return uint(keccak256(abi.encodePacked(now, msg.sender, randNonce))) % _modulus;
+  function randMod() public returns(uint) {
+    randNonce++;
+    return uint(keccak256(abi.encodePacked(now, randNonce, msg.sender))) % 100;
   }
 
 
-//   function spinWheel(uint _userId, uint _scoreToWin, uint _roundReward) internal {
-//     Player storage currentPlayer = players[_userId];
-//     idToCreditBalance[_userId] = 0;
-//     currentPlayer.roundCount = currentPlayer.roundCount.add(1);
-//     uint roundNumber = currentPlayer.roundCount;
-//     uint roundReward = _roundReward;
-//     uint spinOnePoints = getRoundScore(randMod(100));
-//     uint spinTwoPoints = getRoundScore(randMod(100));
-//     uint spinThreePoints = getRoundScore(randMod(100));
-//     uint _roundScore = spinOnePoints + spinTwoPoints + spinThreePoints;
 
-//     emit RoundResults(_userId, roundNumber, spinOnePoints, spinTwoPoints, spinThreePoints, _roundScore);
-//     if(_roundScore >= _scoreToWin){
-//         if(roundNumber == 3){
-//             currentPlayer.roundCount = 0;
-//             currentPlayer.paid = false;
+//   function spinWheel() public {
+//     uint _randNum = randMod(100);
+//     getRoundScore(_randNum);
+//     emit RoundResults(_userId, spinPoints);
+//   }
 
-//         } else {
-//             idToCreditBalance[_userId] = roundReward;
-//         }
-//     } else {
-//         currentPlayer.roundCount = 0;
-//         currentPlayer.paid = false;
-//     }
-//     uint rewardPool = idToCreditBalance[_userId];
-//     emit PlayerRewardPool(_userId, rewardPool);
-//     }
+    // if(_roundScore >= _scoreToWin){
+    //     if(roundNumber == 3){
+    //         players[_userId].roundCount = 0;
+    //     } else {
+    //         addressToCreditBalance[_userAccount] = _roundReward;
+    //     }
+    // } else {
+    //     players[_userId].roundCount = 0;
+    //     players[_userId].paid = false;
+    // }
+    //  uint rewardPool = addressToCreditBalance[_userAccount];
+    // emit PlayerRewardPool(_userId, rewardPool);
 
+    function spinWheel() public {
+        uint _userId = addressToId[msg.sender];
+        players[_userId].spinCount++;
+        uint randomNumber = randMod();
+        uint spinScore = getRoundScore(randomNumber);
+        players[_userId].roundScore = players[_userId].roundScore + spinScore;
+        emit SpinResults(_userId, spinScore, players[_userId].spinCount, players[_userId].roundCount,players[_userId].roundScore, players[_userId].roundGoal);
+        if(players[_userId].spinCount == 3) {
+            if(players[_userId].roundCount == 1){
+                evaluateRoundOne(_userId);
+            } else if(players[_userId].roundCount == 2) {
+                evaluateRoundTwo(_userId);
+            }
+        }
+    }
 
-//     function checkRound() public {
-//         uint _userId = addressToId[msg.sender];
-//          Player storage currentPlayer = players[_userId];
-//         if(currentPlayer.roundCount ==  0) {
-//         spinWheel(_userId, roundOneGoal, roundOneReward);
-//       } else if(currentPlayer.roundCount ==  1) {
-//         spinWheel(_userId, roundTwoGoal, roundTwoReward);
-//       } else if(currentPlayer.roundCount ==  2) {
-//         spinWheel(_userId, roundThreeGoal, roundThreeReward);
-//       }
-//     }
+    function evaluateRoundOne(uint _userId) public {
+        if(players[_userId].roundScore < players[_userId].roundGoal) {
+            players[_userId].owed = 0;
+            players[_userId].roundCount = 0;
+            players[_userId].spinCount = 0;
+        } else {
+            players[_userId].owed = players[_userId].owed + roundOneReward;
+            players[_userId].roundCount++;
+            players[_userId].roundGoal = roundTwoGoal;
+            players[_userId].spinCount = 0;
+        }
+    }
 
-    function getRoundScore(uint _spinNumber) private returns (uint){
-        emit SpinLanding(_spinNumber);
+     function evaluateRoundTwo(uint _userId) public {
+        if(players[_userId].roundScore < players[_userId].roundGoal) {
+            players[_userId].owed = 0;
+            players[_userId].roundCount = 0;
+            players[_userId].roundScore = 0;
+        } else {
+            players[_userId].owed = players[_userId].owed + roundTwoReward;
+            players[_userId].roundCount++;
+            players[_userId].roundGoal = roundThreeGoal;
+            players[_userId].spinCount = 0;
+            players[_userId].roundScore = 0;
+        }
+    }
+
+    function getRoundScore(uint _spinNumber) public pure returns (uint){
       if (_spinNumber < 13) {
         return 25;
       } else if (_spinNumber >= 13 && _spinNumber < 25){
@@ -92,8 +113,8 @@ event PlayerRewardPool(uint userId, uint rewardPool);
         return 150;
       } else if (_spinNumber >= 83 && _spinNumber < 88){
         return 250;
-      } else {
-        return randMod(30).mul(10);
+      } else if (_spinNumber > 88) {
+        return (_spinNumber % 30) * 10;
       }
     }
 
@@ -126,6 +147,16 @@ event PlayerRewardPool(uint userId, uint rewardPool);
 //   Function for owner to change the price to play
     function setPriceToPlay(uint _price) external onlyOwner {
      priceToPlay = _price;
+  }
+
+
+    function createPlayer() public {
+    uint userId = players.push(Player(msg.sender, 0, 0, 0, roundOneGoal, 0, false)) - 1 ;
+    activated[msg.sender] = true;
+    idToPlayer[userId] = msg.sender;
+    addressToCreditBalance[msg.sender] = 0;
+    addressToId[msg.sender] = userId;
+    emit NewPlayer(userId);
   }
 
 

@@ -9,8 +9,11 @@ contract EtherDrive is Ownable{
 
   struct Player {
     address account;
+    uint spinCount;
     uint roundCount;
     uint roundScore;
+    uint roundGoal;
+    uint owed;
     bool paid;
   }
 
@@ -32,16 +35,6 @@ contract EtherDrive is Ownable{
     _;
   }
 
-  function createPlayer() public {
-    require(activated[msg.sender] != true);
-    address _userAccount = msg.sender;
-    uint userId = players.push(Player(_userAccount,  0, 0, false)) - 1 ;
-    activated[_userAccount] = true;
-    idToPlayer[userId] = _userAccount;
-    addressToCreditBalance[_userAccount] = 0;
-    addressToId[_userAccount] = userId;
-    emit NewPlayer(userId);
-  }
 
 //   function testCreatePlayer(address _userAccount) public {
 //     uint userId = players.push(Player(_userAccount,  0, 0, false)) ;
@@ -78,8 +71,8 @@ contract EtherDrive is Ownable{
         return players[_userId].roundCount;
     }
 
-    function isAccountActivated() public view returns (bool){
-        return (activated[msg.sender]);
+    function isAccountActivated(address _account) public view returns (bool){
+        return (activated[_account]);
     }
 
     function getPlayerId() public view returns (uint) {

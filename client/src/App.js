@@ -54,7 +54,7 @@ class App extends Component {
 
     };
 
-this.getPlayerData();
+setInterval(this.getPlayerData(), 500);
 
 }
 
@@ -93,7 +93,7 @@ spinTheWheel() {
   const account = this.state.account
   etherDrive.methods.spinWheel().send({from: account[0]}).then(console.log);;
 
-  setTimeout(this.getPlayerData, 8000);
+  setInterval(this.getPlayerData, 10000);
 }
 
 createNewPlayer(){
@@ -197,14 +197,10 @@ watchRoundResults() {
       <div className="App">
         <div className = "container display-box">
         <GameCanvas />
-        <UserBox address = {this.state.account} />
+        <UserBox address = {this.state.account} spinOne = {this.state.spinOne} spinTwo = {this.state.spinTwo} spinThree = {this.state.spinThree}/>
         <p>{this.state.textArea}</p>
         <p>ID: {this.state.userId}</p>
-        <p>Spin One: {this.state.spinOne}</p>
-        <p>Spin Two: {this.state.spinTwo}</p>
-        <p>Spin Three: {this.state.spinThree}</p>
         <p>Spin number: {this.state.spinCount} of 3</p>
-        <p>Score: {Number(this.state.spinOne) +  Number(this.state.spinTwo) + Number(this.state.spinThree)}</p>
         <p>Goal: {this.state.roundGoal}</p>
         <button onClick = {this.spinTheWheel}>Spin the Wheel</button>
         <button onClick = {this.createNewPlayer}>Create New Player</button>

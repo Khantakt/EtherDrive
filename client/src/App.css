@@ -3,6 +3,10 @@ button {
   height: 100px;
 }
 
+.display-box {
+  margin-top: 50px;
+}
+
 .App {
   text-align: center;
 }

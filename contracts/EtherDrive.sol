@@ -9,6 +9,9 @@ contract EtherDrive is Ownable{
 
   struct Player {
     address account;
+    uint spinOne;
+    uint spinTwo;
+    uint spinThree;
     uint spinCount;
     uint roundCount;
     uint roundScore;
@@ -81,6 +84,41 @@ contract EtherDrive is Ownable{
 
     function getPriceToPlay() public view returns (uint) {
         return priceToPlay;
+    }
+
+    function getRoundCount() public view returns (uint) {
+        uint _userId = addressToId[msg.sender];
+       return players[_userId].roundCount;
+    }
+
+    function getRoundScore() public view returns (uint) {
+        uint _userId = addressToId[msg.sender];
+       return players[_userId].roundScore;
+    }
+
+    function getSpinCount() public view returns (uint) {
+        uint _userId = addressToId[msg.sender];
+       return players[_userId].spinCount;
+    }
+
+    function getRoundGoal() public view returns (uint) {
+        uint _userId = addressToId[msg.sender];
+       return players[_userId].roundGoal;
+    }
+
+    function getSpinOne() public view returns (uint) {
+        uint _userId = addressToId[msg.sender];
+       return players[_userId].spinOne;
+    }
+
+    function getSpinTwo() public view returns (uint) {
+        uint _userId = addressToId[msg.sender];
+       return players[_userId].spinTwo;
+    }
+
+    function getSpinThree() public view returns (uint) {
+        uint _userId = addressToId[msg.sender];
+       return players[_userId].spinThree;
     }
 
 }

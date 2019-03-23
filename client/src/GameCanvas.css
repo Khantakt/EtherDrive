@@ -7,14 +7,14 @@ canvas {
 }
 
 #userbox-display {
-  border: solid red 1px;
+  border: solid black 1px;
   height:356px;
   /* width: 100%; */
   float:right;
 }
 
 #address-display {
-  border: solid blue 1px;
+  /* border: solid blue 1px; */
   height: 40px;
   width: 100%;
   font-size: 12px;

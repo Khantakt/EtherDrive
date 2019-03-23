@@ -6,7 +6,7 @@ contract  EtherWheel is EtherDrive {
 
 using SafeMath for uint256;
 
-event SpinResults(uint userId, uint spinScore, uint spinCount, uint roundCount, uint roundScore, uint roundGoal);
+event SpinResults(uint indexed userId, uint spinScore, uint spinCount, uint roundCount, uint roundScore, uint roundGoal);
 event SpinLanding(uint spinresult);
 event PlayerRewardPool(uint userId, uint rewardPool);
 
@@ -56,45 +56,82 @@ event PlayerRewardPool(uint userId, uint rewardPool);
     // emit PlayerRewardPool(_userId, rewardPool);
 
     function spinWheel() public {
+        require(addressToId[msg.sender] != 0);
         uint _userId = addressToId[msg.sender];
-        players[_userId].spinCount++;
         uint randomNumber = randMod();
         uint spinScore = getRoundScore(randomNumber);
         players[_userId].roundScore = players[_userId].roundScore + spinScore;
         emit SpinResults(_userId, spinScore, players[_userId].spinCount, players[_userId].roundCount,players[_userId].roundScore, players[_userId].roundGoal);
-        if(players[_userId].spinCount == 3) {
+
+        if(players[_userId].spinCount == 1){
+            players[_userId].spinOne = spinScore;
+            players[_userId].spinTwo = 0;
+            players[_userId].spinThree = 0;
+        } else if(players[_userId].spinCount == 2){
+            players[_userId].spinTwo = spinScore;
+        } else if(players[_userId].spinCount == 3){
+            players[_userId].spinThree = spinScore;
+        }
+
+         players[_userId].spinCount++;
+
+        if(players[_userId].spinCount == 4) {
             if(players[_userId].roundCount == 1){
                 evaluateRoundOne(_userId);
             } else if(players[_userId].roundCount == 2) {
                 evaluateRoundTwo(_userId);
+            } else if(players[_userId].roundCount == 3){
+                evaluateRoundThree(_userId);
             }
         }
     }
 
     function evaluateRoundOne(uint _userId) public {
         if(players[_userId].roundScore < players[_userId].roundGoal) {
+            players[_userId].roundScore = 0;
             players[_userId].owed = 0;
-            players[_userId].roundCount = 0;
-            players[_userId].spinCount = 0;
+            players[_userId].roundCount = 1;
+            players[_userId].spinCount = 1;
+            players[_userId].roundGoal = roundOneGoal;
         } else {
-            players[_userId].owed = players[_userId].owed + roundOneReward;
+            players[_userId].roundScore = 0;
+            players[_userId].owed = roundOneReward;
             players[_userId].roundCount++;
             players[_userId].roundGoal = roundTwoGoal;
-            players[_userId].spinCount = 0;
+            players[_userId].spinCount = 1;
         }
     }
 
      function evaluateRoundTwo(uint _userId) public {
         if(players[_userId].roundScore < players[_userId].roundGoal) {
             players[_userId].owed = 0;
-            players[_userId].roundCount = 0;
+            players[_userId].roundCount = 1;
             players[_userId].roundScore = 0;
+            players[_userId].spinCount = 1;
+            players[_userId].roundGoal = roundOneGoal;
         } else {
-            players[_userId].owed = players[_userId].owed + roundTwoReward;
+            players[_userId].owed = roundTwoReward;
             players[_userId].roundCount++;
             players[_userId].roundGoal = roundThreeGoal;
-            players[_userId].spinCount = 0;
+            players[_userId].spinCount = 1;
             players[_userId].roundScore = 0;
+        }
+    }
+
+    function evaluateRoundThree(uint _userId) public {
+        if(players[_userId].roundScore < players[_userId].roundGoal) {
+            players[_userId].owed = 0;
+            players[_userId].roundCount = 1;
+            players[_userId].roundScore = 0;
+            players[_userId].spinCount = 1;
+            players[_userId].roundGoal = roundOneGoal;
+        } else {
+            players[_userId].owed = 0;
+            players[_userId].roundCount = 1;
+            players[_userId].roundGoal = roundOneGoal;
+            players[_userId].spinCount = 1;
+            players[_userId].roundScore = 0;
+            addressToCreditBalance[msg.sender] = addressToCreditBalance[msg.sender] + roundTwoReward;
         }
     }
 
@@ -151,7 +188,8 @@ event PlayerRewardPool(uint userId, uint rewardPool);
 
 
     function createPlayer() public {
-    uint userId = players.push(Player(msg.sender, 0, 0, 0, roundOneGoal, 0, false)) - 1 ;
+    require(activated[msg.sender]!= true);
+    uint userId = players.push(Player(msg.sender, 0, 0, 0, 1, 1, 0, roundOneGoal, 0, false)) - 1 ;
     activated[msg.sender] = true;
     idToPlayer[userId] = msg.sender;
     addressToCreditBalance[msg.sender] = 0;
